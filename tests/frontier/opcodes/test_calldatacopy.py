@@ -11,21 +11,31 @@ from ethereum_test_tools.vm.opcode import Opcodes as Op
 local_pre = {
     0x0000000000000000000000000000000000001000: Account(
         balance=0x0ba1a9ce0ba1a9ce,
-        code=Yul(
         # Copy data from calldata locations [1:(1+2)-1] to memory
         # locations [0:(0+2)-1]. So we skip the 0'th byte (the 0x12),
         # and write the second and third bytes into memory locations zero
         # and one.
         #
         # When put into a 256 bit storage cell, this gives us 0x3456....0
-        """
-        {
-            (calldatacopy 0 1 2)
-            [[0]] @0
+        # {
+        #     (calldatacopy 0 1 2)
+        #     [[0]] @0
 
-            (return 0 (msize))
-        }
-        """
+        #     (return 0 (msize))
+        # }
+        code=(
+            Op.PUSH1[0x2] +
+            Op.PUSH1[0x1] +
+            Op.PUSH1[0x0] +
+            Op.CALLDATACOPY +
+            Op.PUSH1[0x0] +
+            Op.MLOAD +
+            Op.PUSH1[0x0] +
+            Op.SSTORE +
+            Op.MSIZE +
+            Op.PUSH1[0x0] +
+            Op.RETURN +
+            Op.STOP
         ),
         nonce=0,
         storage={},
@@ -33,15 +43,25 @@ local_pre = {
     # Same as 0x100, but with a length of one
     0x0000000000000000000000000000000000001001: Account(
         balance=0x0ba1a9ce0ba1a9ce,
-        code=Yul(
-        """
-        {
-            (calldatacopy 0 1 1)
-            [[0]] @0
+        # {
+        #     (calldatacopy 0 1 1)
+        #     [[0]] @0
 
-            (return 0 (msize))
-        }
-        """
+        #     (return 0 (msize))
+        # }
+        code=(
+            Op.PUSH1[0x1] +
+            Op.PUSH1[0x1] +
+            Op.PUSH1[0x0] +
+            Op.CALLDATACOPY +
+            Op.PUSH1[0x0] +
+            Op.MLOAD +
+            Op.PUSH1[0x0] +
+            Op.SSTORE +
+            Op.MSIZE +
+            Op.PUSH1[0x0] +
+            Op.RETURN +
+            Op.STOP
         ),
         nonce=0,
         storage={},
@@ -49,75 +69,60 @@ local_pre = {
     # Same as 0x100, but with a length of zero
     0x0000000000000000000000000000000000001002: Account(
         balance=0x0ba1a9ce0ba1a9ce,
-        code=Yul(
-        """
-        {
-            (calldatacopy 0 1 0)
-            [[0]] @0
+        # {
+        #     (calldatacopy 0 1 0)
+        #     [[0]] @0
 
-            (return 0 (msize))
-        }
-        """
-        ),
+        #     (return 0 (msize))
+        # }
+        code=(Op.PUSH1[0x0] + Op.PUSH1[0x1] + Op.PUSH1[0x0] + Op.CALLDATACOPY + Op.PUSH1[0x0] + Op.MLOAD + Op.PUSH1[0x0] + Op.SSTORE + Op.MSIZE + Op.PUSH1[0x0] + Op.RETURN + Op.STOP),
         nonce=0,
         storage={},
     ),
     # ZeroMemExpansion
     0x0000000000000000000000000000000000001003: Account(
         balance=0x0ba1a9ce0ba1a9ce,
-        code=Yul(
-        """
-        {
-            (calldatacopy 0 0 0)
-            [[0]] @0
+        # {
+        #     (calldatacopy 0 0 0)
+        #     [[0]] @0
 
-            (return 0 (msize))
-        }
-        """
-        ),
+        #     (return 0 (msize))
+        # }
+        code=(Op.PUSH1[0x0] + Op.PUSH1[0x0] + Op.PUSH1[0x0] + Op.CALLDATACOPY + Op.PUSH1[0x0] + Op.MLOAD + Op.PUSH1[0x0] + Op.SSTORE + Op.MSIZE + Op.PUSH1[0x0] + Op.RETURN + Op.STOP),
         nonce=0,
         storage={},
     ),
     # DataIndexTooHigh
     0x0000000000000000000000000000000000001004: Account(
         balance=0x0ba1a9ce0ba1a9ce,
-        code=Yul(
-        """
-        {
-            (calldatacopy 0
-               0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffa 0xff)
-            [[0]] @0
+        # {
+        #     (calldatacopy 0
+        #        0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffa 0xff)
+        #     [[0]] @0
 
-            (return 0 (msize))
-        }
-        """
-        ),
+        #     (return 0 (msize))
+        # }
+        code=(Op.PUSH1[0xff] + Op.PUSH32[0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffa] + Op.PUSH1[0x0] + Op.CALLDATACOPY + Op.PUSH1[0x0] + Op.MLOAD + Op.PUSH1[0x0] + Op.SSTORE + Op.MSIZE + Op.PUSH1[0x0] + Op.RETURN + Op.STOP),
         nonce=0,
         storage={},
     ),
-
-
-
     # DataIndexTooHigh 2
-    0000000000000000000000000000000000001005:
-      balance: '0x0ba1a9ce0ba1a9ce'
-      code: |
-        {
-          (calldatacopy 0
-             0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffa 0x09)
-          [[0]] @0
+    0x0000000000000000000000000000000000001005: Account(
+        balance=0x0ba1a9ce0ba1a9ce,
+        # {
+        #   (calldatacopy 0
+        #      0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffa 0x09)
+        #   [[0]] @0
 
-          (return 0 (msize))
-        }
-      nonce: '0'
-      storage: {}
-
-
-
-
+        #   (return 0 (msize))
+        # }
+        code=(Op.PUSH1[0x9] + Op.PUSH32[0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffa] + Op.PUSH1[0x0] + Op.CALLDATACOPY + Op.PUSH1[0x0] + Op.MLOAD + Op.PUSH1[0x0] + Op.SSTORE + Op.MSIZE + Op.PUSH1[0x0] + Op.RETURN + Op.STOP),
+        nonce=0,
+        storage={},
+    ),
     # Underflow
-    0000000000000000000000000000000000001010:
-      balance: '0x0ba1a9ce0ba1a9ce'
+    0x0000000000000000000000000000000000001010: Account(
+      balance=0x0ba1a9ce0ba1a9ce,
       #
       #  0 PUSH1 1
       #  2 PUSH1 1
@@ -267,10 +272,11 @@ def test_calldatacopy(
 ):
 
     env = Environment(
+        base_fee_per_gas=0xa,
         difficulty=0x20000,
-        gas_limit=100000000,
-        number=1,
-        timestamp=1000,
+        excess_blob_gas=0x0,
+        gas_limit=0x05f55e100,
+        prev_randao=0x0,
     )
 
     post = {}

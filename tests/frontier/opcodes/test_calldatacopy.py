@@ -4,9 +4,16 @@ test `CALLDATACOPY` opcode
 
 import pytest
 
-from ethereum_test_tools import Account, Alloc, Environment, Hash, StateTestFiller, Transaction
+from ethereum_test_tools import (
+    Account,
+    Alloc,
+    Bytecode,
+    Environment,
+    Hash,
+    StateTestFiller,
+    Transaction,
+)
 from ethereum_test_tools.vm.opcode import Opcodes as Op
-
 
 local_pre = {
     0x0000000000000000000000000000000000001000: Account(
@@ -290,209 +297,340 @@ local_pre = {
         storage={},
     ),
 }
+# local_post = {
+#     "0x0000000000000000000000000000000000001000": Account(
+#         balance=0x0BA1A9CE0BA1A9CE,
+#         code="0x60026001600037600051600055596000f300",
+#         nonce=0x00,
+#         storage={0x00: 0x3456000000000000000000000000000000000000000000000000000000000000},
+#     ),
+#     "0x0000000000000000000000000000000000001001": Account(
+#         balance=0x0BA1A9CE0BA1A9CE,
+#         code="0x60016001600037600051600055596000f300",
+#         nonce=0x00,
+#         storage={},
+#     ),
+#     "0x0000000000000000000000000000000000001002": Account(
+#         balance=0x0BA1A9CE0BA1A9CE,
+#         code="0x60006001600037600051600055596000f300",
+#         nonce=0x00,
+#         storage={},
+#     ),
+#     "0x0000000000000000000000000000000000001003": Account(
+#         balance=0x0BA1A9CE0BA1A9CE,
+#         code="0x60006000600037600051600055596000f300",
+#         nonce=0x00,
+#         storage={},
+#     ),
+#     "0x0000000000000000000000000000000000001004": Account(
+#         balance=0x0BA1A9CE0BA1A9CE,
+#         code="0x60ff7ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffa600037600051600055596000f300",
+#         nonce=0x00,
+#         storage={},
+#     ),
+#     "0x0000000000000000000000000000000000001005": Account(
+#         balance=0x0BA1A9CE0BA1A9CE,
+#         code="0x60097ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffa600037600051600055596000f300",
+#         nonce=0x00,
+#         storage={},
+#     ),
+#     "0x0000000000000000000000000000000000001010": Account(
+#         balance=0x0BA1A9CE0BA1A9CE,
+#         code="0x60016001556001600237",
+#         nonce=0x00,
+#         storage={},
+#     ),
+#     "0x0000000000000000000000000000000000001011": Account(
+#         balance=0x0BA1A9CE0BA1A9CE,
+#         code="0x6005565b005b6042601f536101036000601f3760005180606014600357640badc0ffee60ff55",
+#         nonce=0x00,
+#         storage={},
+#     ),
+#     "0x000f3df6d732807ef1319fb7b8bb8522d0beac02": Account(
+#         balance=0x00,
+#         code="0x3373fffffffffffffffffffffffffffffffffffffffe14604d57602036146024575f5ffd5b5f35801560495762001fff810690815414603c575f5ffd5b62001fff01545f5260205ff35b5f5ffd5b62001fff42064281555f359062001fff015500",
+#         nonce=0x01,
+#         storage={0x03E8: 0x03E8},
+#     ),
+#     "0xa94f5374fce5edbc8e2a8697c15331677e6ebf0b": Account(
+#         balance=0x0BA1A9CE0B96F005,
+#         code="0x",
+#         nonce=0x01,
+#         storage={},
+#     ),
+#     "0xcccccccccccccccccccccccccccccccccccccccc": Account(
+#         balance=0x0BA1A9CE0BA1A9CF,
+#         code="0x701234567890abcdef01234567890abcdef0600052604060206010600f60006004356110000162fffffff15060205160005560405160015500",
+#         nonce=0x00,
+#         storage={0x00: 0x3456000000000000000000000000000000000000000000000000000000000000},
+#     ),
+# }
 
 local_post = {
     "0x0000000000000000000000000000000000001000": Account(
-        balance=0x0BA1A9CE0BA1A9CE,
-        code="0x60026001600037600051600055596000f300",
-        nonce=0x00,
         storage={0x00: 0x3456000000000000000000000000000000000000000000000000000000000000},
     ),
     "0x0000000000000000000000000000000000001001": Account(
-        balance=0x0BA1A9CE0BA1A9CE,
-        code="0x60016001600037600051600055596000f300",
-        nonce=0x00,
         storage={},
     ),
     "0x0000000000000000000000000000000000001002": Account(
-        balance=0x0BA1A9CE0BA1A9CE,
-        code="0x60006001600037600051600055596000f300",
-        nonce=0x00,
         storage={},
     ),
     "0x0000000000000000000000000000000000001003": Account(
-        balance=0x0BA1A9CE0BA1A9CE,
-        code="0x60006000600037600051600055596000f300",
-        nonce=0x00,
         storage={},
     ),
     "0x0000000000000000000000000000000000001004": Account(
-        balance=0x0BA1A9CE0BA1A9CE,
-        code="0x60ff7ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffa600037600051600055596000f300",
-        nonce=0x00,
         storage={},
     ),
     "0x0000000000000000000000000000000000001005": Account(
-        balance=0x0BA1A9CE0BA1A9CE,
-        code="0x60097ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffa600037600051600055596000f300",
-        nonce=0x00,
         storage={},
     ),
     "0x0000000000000000000000000000000000001010": Account(
-        balance=0x0BA1A9CE0BA1A9CE,
-        code="0x60016001556001600237",
-        nonce=0x00,
         storage={},
     ),
     "0x0000000000000000000000000000000000001011": Account(
-        balance=0x0BA1A9CE0BA1A9CE,
-        code="0x6005565b005b6042601f536101036000601f3760005180606014600357640badc0ffee60ff55",
-        nonce=0x00,
         storage={},
     ),
     "0x000f3df6d732807ef1319fb7b8bb8522d0beac02": Account(
-        balance=0x00,
-        code="0x3373fffffffffffffffffffffffffffffffffffffffe14604d57602036146024575f5ffd5b5f35801560495762001fff810690815414603c575f5ffd5b62001fff01545f5260205ff35b5f5ffd5b62001fff42064281555f359062001fff015500",
-        nonce=0x01,
         storage={0x03E8: 0x03E8},
     ),
     "0xa94f5374fce5edbc8e2a8697c15331677e6ebf0b": Account(
-        balance=0x0BA1A9CE0B96F005,
-        code="0x",
-        nonce=0x01,
         storage={},
     ),
     "0xcccccccccccccccccccccccccccccccccccccccc": Account(
-        balance=0x0BA1A9CE0BA1A9CF,
-        code="0x701234567890abcdef01234567890abcdef0600052604060206010600f60006004356110000162fffffff15060205160005560405160015500",
-        nonce=0x00,
         storage={0x00: 0x3456000000000000000000000000000000000000000000000000000000000000},
     ),
 }
 
+
 @pytest.mark.parametrize(
-    "cdc",
+    "cdc,tx_data,post",
     [
         (
-            Op.PUSH1[0x2]
-            + Op.PUSH1[0x1]
-            + Op.PUSH1[0x0]
-            + Op.CALLDATACOPY
-            + Op.PUSH1[0x0]
-            + Op.MLOAD
-            + Op.PUSH1[0x0]
-            + Op.SSTORE
-            + Op.MSIZE
-            + Op.PUSH1[0x0]
-            + Op.RETURN
-            + Op.STOP
+            (
+                Op.PUSH1[0x2]
+                + Op.PUSH1[0x1]
+                + Op.PUSH1[0x0]
+                + Op.CALLDATACOPY
+                + Op.PUSH1[0x0]
+                + Op.MLOAD
+                + Op.PUSH1[0x0]
+                + Op.SSTORE
+                + Op.MSIZE
+                + Op.PUSH1[0x0]
+                + Op.RETURN
+                + Op.STOP
+            ),
+            # b"\x00",
+            b"i<a9\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00",
+            {
+                "0x0000000000000000000000000000000000001000": Account(
+                    storage={
+                        0x00: 0x3456000000000000000000000000000000000000000000000000000000000000
+                    },
+                ),
+                "0xcccccccccccccccccccccccccccccccccccccccc": Account(
+                    storage={
+                        0x00: 0x3456000000000000000000000000000000000000000000000000000000000000
+                    },
+                ),
+            },
         ),
         (
-            Op.PUSH1[0x1]
-            + Op.PUSH1[0x1]
-            + Op.PUSH1[0x0]
-            + Op.CALLDATACOPY
-            + Op.PUSH1[0x0]
-            + Op.MLOAD
-            + Op.PUSH1[0x0]
-            + Op.SSTORE
-            + Op.MSIZE
-            + Op.PUSH1[0x0]
-            + Op.RETURN
-            + Op.STOP
+            (
+                Op.PUSH1[0x1]
+                + Op.PUSH1[0x1]
+                + Op.PUSH1[0x0]
+                + Op.CALLDATACOPY
+                + Op.PUSH1[0x0]
+                + Op.MLOAD
+                + Op.PUSH1[0x0]
+                + Op.SSTORE
+                + Op.MSIZE
+                + Op.PUSH1[0x0]
+                + Op.RETURN
+                + Op.STOP
+            ),
+            b"\x01",
+            {
+                "0x0000000000000000000000000000000000001001": Account(
+                    storage={
+                        0x00: 0x3400000000000000000000000000000000000000000000000000000000000000
+                    },
+                ),
+                "0xcccccccccccccccccccccccccccccccccccccccc": Account(
+                    storage={
+                        0x00: 0x3400000000000000000000000000000000000000000000000000000000000000
+                    },
+                ),
+            },
         ),
         (
-            Op.PUSH1[0x0]
-            + Op.PUSH1[0x1]
-            + Op.PUSH1[0x0]
-            + Op.CALLDATACOPY
-            + Op.PUSH1[0x0]
-            + Op.MLOAD
-            + Op.PUSH1[0x0]
-            + Op.SSTORE
-            + Op.MSIZE
-            + Op.PUSH1[0x0]
-            + Op.RETURN
-            + Op.STOP
+            (
+                Op.PUSH1[0x0]
+                + Op.PUSH1[0x1]
+                + Op.PUSH1[0x0]
+                + Op.CALLDATACOPY
+                + Op.PUSH1[0x0]
+                + Op.MLOAD
+                + Op.PUSH1[0x0]
+                + Op.SSTORE
+                + Op.MSIZE
+                + Op.PUSH1[0x0]
+                + Op.RETURN
+                + Op.STOP
+            ),
+            b"\x02",
+            {
+                "0x0000000000000000000000000000000000001002": Account(
+                    storage={0x00: 0x00},
+                ),
+                "0xcccccccccccccccccccccccccccccccccccccccc": Account(
+                    storage={0x00: 0x00},
+                ),
+            },
         ),
         (
-            Op.PUSH1[0x0]
-            + Op.PUSH1[0x0]
-            + Op.PUSH1[0x0]
-            + Op.CALLDATACOPY
-            + Op.PUSH1[0x0]
-            + Op.MLOAD
-            + Op.PUSH1[0x0]
-            + Op.SSTORE
-            + Op.MSIZE
-            + Op.PUSH1[0x0]
-            + Op.RETURN
-            + Op.STOP
+            (
+                Op.PUSH1[0x0]
+                + Op.PUSH1[0x0]
+                + Op.PUSH1[0x0]
+                + Op.CALLDATACOPY
+                + Op.PUSH1[0x0]
+                + Op.MLOAD
+                + Op.PUSH1[0x0]
+                + Op.SSTORE
+                + Op.MSIZE
+                + Op.PUSH1[0x0]
+                + Op.RETURN
+                + Op.STOP
+            ),
+            b"\x03",
+            {
+                "0x0000000000000000000000000000000000001003": Account(
+                    storage={0x00: 0x00},
+                ),
+                "0xcccccccccccccccccccccccccccccccccccccccc": Account(
+                    storage={0x00: 0x00},
+                ),
+            },
         ),
         (
-            Op.PUSH1[0xFF]
-            + Op.PUSH32[0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFA]
-            + Op.PUSH1[0x0]
-            + Op.CALLDATACOPY
-            + Op.PUSH1[0x0]
-            + Op.MLOAD
-            + Op.PUSH1[0x0]
-            + Op.SSTORE
-            + Op.MSIZE
-            + Op.PUSH1[0x0]
-            + Op.RETURN
-            + Op.STOP
+            (
+                Op.PUSH1[0xFF]
+                + Op.PUSH32[0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFA]
+                + Op.PUSH1[0x0]
+                + Op.CALLDATACOPY
+                + Op.PUSH1[0x0]
+                + Op.MLOAD
+                + Op.PUSH1[0x0]
+                + Op.SSTORE
+                + Op.MSIZE
+                + Op.PUSH1[0x0]
+                + Op.RETURN
+                + Op.STOP
+            ),
+            b"\x04",
+            {
+                "0x0000000000000000000000000000000000001004": Account(
+                    storage={0x00: 0x00},
+                ),
+                "0xcccccccccccccccccccccccccccccccccccccccc": Account(
+                    storage={0x00: 0x00},
+                ),
+            },
         ),
         (
-            Op.PUSH1[0x9]
-            + Op.PUSH32[0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFA]
-            + Op.PUSH1[0x0]
-            + Op.CALLDATACOPY
-            + Op.PUSH1[0x0]
-            + Op.MLOAD
-            + Op.PUSH1[0x0]
-            + Op.SSTORE
-            + Op.MSIZE
-            + Op.PUSH1[0x0]
-            + Op.RETURN
-            + Op.STOP
+            (
+                Op.PUSH1[0x9]
+                + Op.PUSH32[0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFA]
+                + Op.PUSH1[0x0]
+                + Op.CALLDATACOPY
+                + Op.PUSH1[0x0]
+                + Op.MLOAD
+                + Op.PUSH1[0x0]
+                + Op.SSTORE
+                + Op.MSIZE
+                + Op.PUSH1[0x0]
+                + Op.RETURN
+                + Op.STOP
+            ),
+            b"\x05",
+            {
+                "0x0000000000000000000000000000000000001005": Account(
+                    storage={0x00: 0x00},
+                ),
+                "0xcccccccccccccccccccccccccccccccccccccccc": Account(
+                    storage={0x00: 0x00},
+                ),
+            },
         ),
         (
-            Op.PUSH1[0x1]
-            + Op.PUSH1[0x1]
-            + Op.SSTORE
-            + Op.PUSH1[0x1]
-            + Op.PUSH1[0x2]
-            + Op.CALLDATACOPY
+            (
+                Op.PUSH1[0x1]
+                + Op.PUSH1[0x1]
+                + Op.SSTORE
+                + Op.PUSH1[0x1]
+                + Op.PUSH1[0x2]
+                + Op.CALLDATACOPY
+            ),
+            b"\x10",
+            {
+                "0x0000000000000000000000000000000000001010": Account(
+                    storage={0x01: 0x00},
+                ),
+            },
         ),
         (
-            Op.PUSH1[0x5]
-            + Op.JUMP
-            + Op.JUMPDEST
-            + Op.STOP
-            + Op.JUMPDEST
-            + Op.PUSH1[0x42]
-            + Op.PUSH1[0x1F]
-            + Op.MSTORE8
-            + Op.PUSH2[0x103]
-            + Op.PUSH1[0x0]
-            + Op.PUSH1[0x1F]
-            + Op.CALLDATACOPY
-            + Op.PUSH1[0x0]
-            + Op.MLOAD
-            + Op.DUP1
-            + Op.PUSH1[0x60]
-            + Op.EQ
-            + Op.PUSH1[0x3]
-            + Op.JUMPI
-            + Op.PUSH5[0xBADC0FFEE]
-            + Op.PUSH1[0xFF]
-            + Op.SSTORE
+            (
+                Op.PUSH1[0x5]
+                + Op.JUMP
+                + Op.JUMPDEST
+                + Op.STOP
+                + Op.JUMPDEST
+                + Op.PUSH1[0x42]
+                + Op.PUSH1[0x1F]
+                + Op.MSTORE8
+                + Op.PUSH2[0x103]
+                + Op.PUSH1[0x0]
+                + Op.PUSH1[0x1F]
+                + Op.CALLDATACOPY
+                + Op.PUSH1[0x0]
+                + Op.MLOAD
+                + Op.DUP1
+                + Op.PUSH1[0x60]
+                + Op.EQ
+                + Op.PUSH1[0x3]
+                + Op.JUMPI
+                + Op.PUSH5[0xBADC0FFEE]
+                + Op.PUSH1[0xFF]
+                + Op.SSTORE
+            ),
+            b"\x11",
+            {
+                "0x0000000000000000000000000000000000001011": Account(
+                    storage={0xFF: 0xBADC0FFEE},
+                ),
+            },
         ),
     ],
-    ids=["cdc 0 1 2",
-         "cdc 0 1 1",
-         "cdc 0 1 0",
-         "cdc 0 0 0",
-         "cdc 0 neg6 ff",
-         "cdc 0 neg6 9",
-         "underflow",
-         "sec"],
+    ids=[
+        "cdc 0 1 2",
+        "cdc 0 1 1",
+        "cdc 0 1 0",
+        "cdc 0 0 0",
+        "cdc 0 neg6 ff",
+        "cdc 0 neg6 9",
+        "underflow",
+        "sec",
+    ],
 )
-
 def test_calldatacopy(
     state_test: StateTestFiller,
+    cdc: Bytecode,
+    tx_data: bytes,
     # pre: Alloc,
+    post: dict,
 ):
 
     env = Environment(
@@ -502,34 +640,25 @@ def test_calldatacopy(
         gas_limit=0x05F55E100,
         prev_randao=0x0,
     )
-    pre = local_pre
-    post = local_post
+
+    # env = Environment()
+    pre = Alloc(local_pre)
+    sender = pre.fund_eoa() # this is the account that matches the secret key below
+
+    account = pre.deploy_contract(cdc)
+    # post = local_post
+    # breakpoint()
+
     tx = Transaction(
-            data=Hash([
-                # 0x693c61390000000000000000000000000000000000000000000000000000000000000000,
-                # 0x693c61390000000000000000000000000000000000000000000000000000000000000001,
-                # 0x693c61390000000000000000000000000000000000000000000000000000000000000002,
-                # 0x693c61390000000000000000000000000000000000000000000000000000000000000003,
-                # 0x693c61390000000000000000000000000000000000000000000000000000000000000004,
-                # 0x693c61390000000000000000000000000000000000000000000000000000000000000005,
-                # 0x693c61390000000000000000000000000000000000000000000000000000000000000010,
-                # 0x693c61390000000000000000000000000000000000000000000000000000000000000011
-                0x00,
-                0x01,
-                0x02,
-                0x03,
-                0x04,
-                0x05,
-                0x10,
-                0x11
-            ]),
-            gas_limit=0x04c4b400,
-            gas_price=0x0a,
-            nonce=0x00,
-            secret_key="0x45a915e4d060149eb4365960e6a7a45f334393093061116b197e3240065ff2d8",
-            sender=0xa94f5374fce5edbc8e2a8697c15331677e6ebf0b,
-            to="0xcccccccccccccccccccccccccccccccccccccccc",
-            value=0x01, 
-        )
+        data=tx_data,
+        gas_limit=0x04C4B400,
+        gas_price=0x0A,
+        nonce=0x00,
+        secret_key="0x45a915e4d060149eb4365960e6a7a45f334393093061116b197e3240065ff2d8",
+        # sender=0xA94F5374FCE5EDBC8E2A8697C15331677E6EBF0B,
+        sender=sender,
+        to=account,
+        value=0x01,
+    )
 
     state_test(env=env, pre=pre, post=post, tx=tx)

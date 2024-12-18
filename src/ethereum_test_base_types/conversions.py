@@ -83,7 +83,7 @@ def to_number(input: NumberConvertible) -> int:
         return int(input, 0)
     if isinstance(input, bytes) or isinstance(input, SupportsBytes):
         return int.from_bytes(input, byteorder="big")
-    raise Exception("invalid type for `number`")
+    raise Exception(f"{input} is invalid type for `number`")
 
 
 def to_fixed_size_hex(input: FixedSizeBytesConvertible, size: int) -> str:
